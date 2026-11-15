@@ -1,5 +1,6 @@
 export type Rol = 'ADMIN' | 'CLIENTE';
 export type EstadoPedido = 'PENDIENTE' | 'PAGADO' | 'CANCELADO';
+export type MetodoPago = 'YAPE' | 'PLIN' | 'TARJETA' | 'TRANSFERENCIA' | 'CONTRA_ENTREGA';
 
 export interface AuthResponse {
   token: string;
@@ -50,6 +51,9 @@ export interface CategoriaResponse {
   id: number;
   nombre: string;
   descripcion: string;
+  padreId?: number | null;
+  padreNombre?: string | null;
+  subcategorias?: CategoriaResponse[];
 }
 
 export interface ProductoResponse {
@@ -90,6 +94,7 @@ export interface PedidoResponse {
   cliente: string;
   fecha: string;
   estado: EstadoPedido;
+  metodoPago: MetodoPago | null;
   total: number;
   detalles: DetallePedidoResponse[];
 }
@@ -130,6 +135,30 @@ export interface ProductoStockBajo {
   id: number;
   nombre: string;
   stock: number;
+}
+
+export interface ConfiguracionResponse {
+  id: number;
+  nombreTienda: string;
+  descripcion: string;
+  emailContacto: string;
+  telefono: string;
+  whatsapp: string;
+  direccion: string;
+  facebookUrl: string;
+  instagramUrl: string;
+  twitterUrl: string;
+}
+
+export interface BannerResponse {
+  id: number;
+  titulo: string;
+  subtitulo: string;
+  imagenUrl?: string | null;
+  enlaceUrl?: string | null;
+  textoBoton?: string | null;
+  orden: number;
+  activo: boolean;
 }
 
 export interface ErrorResponse {

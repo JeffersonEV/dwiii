@@ -4,9 +4,6 @@ import com.sistematecnologico.entity.Rol;
 
 import java.time.LocalDateTime;
 
-/**
- * DTO de salida. Nunca incluye la contrasena.
- */
 public record UsuarioResponse(
         Long id,
         String nombre,
@@ -14,6 +11,7 @@ public record UsuarioResponse(
         String email,
         Boolean activo,
         Rol rol,
-        LocalDateTime fechaRegistro
+        LocalDateTime fechaRegistro,
+        Boolean promocionDisponible
 ) {
 }

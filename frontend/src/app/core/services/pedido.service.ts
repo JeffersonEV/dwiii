@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { PedidoResponse } from '../models/models';
+import { PedidoResponse, MetodoPago } from '../models/models';
 
 export interface PedidoItemRequest {
   productoId: number;
@@ -13,8 +13,8 @@ export interface PedidoItemRequest {
 export class PedidoService {
   constructor(private http: HttpClient) {}
 
-  crear(items: PedidoItemRequest[]): Observable<PedidoResponse> {
-    return this.http.post<PedidoResponse>(`${environment.apiUrl}/pedidos`, { items });
+  crear(items: PedidoItemRequest[], metodoPago: MetodoPago): Observable<PedidoResponse> {
+    return this.http.post<PedidoResponse>(`${environment.apiUrl}/pedidos`, { items, metodoPago });
   }
 
   misPedidos(): Observable<PedidoResponse[]> {

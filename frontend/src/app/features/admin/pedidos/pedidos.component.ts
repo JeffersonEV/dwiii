@@ -2,11 +2,14 @@ import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { AdminService } from '../../../core/services/admin.service';
-import { EstadoPedido, PageResponse, PedidoResponse } from '../../../core/models/models';
+import { ConfiguracionService } from '../../../core/services/configuracion.service';
+import { ConfiguracionResponse, EstadoPedido, PageResponse, PedidoResponse, ResumenReporte } from '../../../core/models/models';
+import { BoletaModalComponent } from '../../../shared/components/boleta-modal/boleta-modal.component';
+import { metodoPagoTexto } from '../../../core/utils/pago';
 
 @Component({
   selector: 'app-pedidos',
-  imports: [ReactiveFormsModule, DecimalPipe, DatePipe],
+  imports: [ReactiveFormsModule, DecimalPipe, DatePipe, BoletaModalComponent],
   template: `
     <h1 class="titulo-pagina">Gestión de pedidos</h1>
     <p class="subtitulo-pagina">Consulta, filtra y actualiza el estado de los pedidos.</p>
@@ -43,6 +46,16 @@ import { EstadoPedido, PageResponse, PedidoResponse } from '../../../core/models
       </div>
     </form>
 
+    @if (resumen(); as r) {
+      <div class="tarjeta pedidos__resumen">
+        <span class="pedidos__resumen-titulo">Resumen general</span>
+        <span class="pedidos__resumen-item">Total <b>{{ r.totalPedidos }}</b></span>
+        <span class="pedidos__resumen-item pedidos__resumen-item--pendiente">Pendientes <b>{{ r.pedidosPendientes }}</b></span>
+        <span class="pedidos__resumen-item pedidos__resumen-item--pagado">Pagados <b>{{ r.pedidosPagados }}</b></span>
+        <span class="pedidos__resumen-item pedidos__resumen-item--cancelado">Cancelados <b>{{ r.pedidosCancelados }}</b></span>
+      </div>
+    }
+
     @if (cargando()) {
       <div class="cargando"><div class="spinner"></div>Cargando…</div>
     } @else {
@@ -50,7 +63,7 @@ import { EstadoPedido, PageResponse, PedidoResponse } from '../../../core/models
         <table class="tabla">
           <thead>
             <tr>
-              <th>ID</th><th>Cliente</th><th>Fecha</th><th>Total</th><th>Estado</th><th>Cambiar estado</th>
+              <th>ID</th><th>Cliente</th><th>Pago</th><th>Fecha</th><th>Total</th><th>Estado</th><th>Cambiar estado</th><th>Boleta</th>
             </tr>
           </thead>
           <tbody>
@@ -58,6 +71,7 @@ import { EstadoPedido, PageResponse, PedidoResponse } from '../../../core/models
               <tr>
                 <td>#{{ pedido.id }}</td>
                 <td>{{ pedido.cliente }}</td>
+                <td>{{ metodoPagoTexto(pedido.metodoPago) }}</td>
                 <td>{{ pedido.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
                 <td>S/ {{ pedido.total | number: '1.2-2' }}</td>
                 <td>
@@ -76,9 +90,16 @@ import { EstadoPedido, PageResponse, PedidoResponse } from '../../../core/models
                     }
                   </select>
                 </td>
+                <td>
+                  @if (pedido.estado === 'PAGADO') {
+                    <button class="boton boton-ghost boton-sm" (click)="verBoleta(pedido)">Boleta</button>
+                  } @else {
+                    <span class="pedidos__sin-boleta">—</span>
+                  }
+                </td>
               </tr>
             } @empty {
-              <tr><td colspan="6" class="vacio">No hay pedidos con esos filtros.</td></tr>
+              <tr><td colspan="8" class="vacio">No hay pedidos con esos filtros.</td></tr>
             }
           </tbody>
         </table>
@@ -92,13 +113,22 @@ import { EstadoPedido, PageResponse, PedidoResponse } from '../../../core/models
         </div>
       }
     }
+
+    @if (boleta(); as pedidoBoleta) {
+      <app-boleta-modal
+        [pedido]="pedidoBoleta"
+        [configuracion]="configuracion()"
+        (cerrar)="cerrarBoleta()" />
+    }
   `,
   styleUrl: './pedidos.component.scss'
 })
 export class PedidosComponent implements OnInit {
   private adminService = inject(AdminService);
+  private configuracionService = inject(ConfiguracionService);
   private fb = inject(FormBuilder);
 
+  readonly metodoPagoTexto = metodoPagoTexto;
   readonly estados: EstadoPedido[] = ['PENDIENTE', 'PAGADO', 'CANCELADO'];
   readonly pedidos: WritableSignal<PedidoResponse[]> = signal([]);
   readonly pagina: WritableSignal<PageResponse<PedidoResponse> | null> = signal(null);
@@ -106,6 +136,9 @@ export class PedidosComponent implements OnInit {
   readonly cargando = signal(true);
   readonly error = signal('');
   readonly cambiando = signal<number | null>(null);
+  readonly configuracion = signal<ConfiguracionResponse | null>(null);
+  readonly boleta = signal<PedidoResponse | null>(null);
+  readonly resumen: WritableSignal<ResumenReporte | null> = signal(null);
 
   form = this.fb.nonNullable.group({
     estado: [''],
@@ -115,15 +148,42 @@ export class PedidosComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.cargarConfiguracion();
+    this.cargarResumen();
     this.cargar();
+  }
+
+  verBoleta(pedido: PedidoResponse): void {
+    if (pedido.estado !== 'PAGADO') return;
+    this.boleta.set(pedido);
+  }
+
+  cerrarBoleta(): void {
+    this.boleta.set(null);
+  }
+
+  private cargarConfiguracion(): void {
+    this.configuracionService.obtener().subscribe({
+      next: (configuracion) => this.configuracion.set(configuracion),
+      error: () => this.configuracion.set(null)
+    });
+  }
+
+  private cargarResumen(): void {
+    this.adminService.resumen().subscribe({
+      next: (resumen) => this.resumen.set(resumen),
+      error: () => this.resumen.set(null)
+    });
   }
 
   cargar(): void {
     this.cargando.set(true);
+    this.error.set('');
     const f = this.form.getRawValue();
     this.adminService
       .listarPedidos({
         pagina: this.actual(),
+        tamanio: 100,
         estado: (f.estado || undefined) as EstadoPedido | undefined,
         usuarioId: f.usuarioId ?? undefined,
         desde: f.desde || undefined,
@@ -135,7 +195,12 @@ export class PedidosComponent implements OnInit {
           this.pagina.set(res);
           this.cargando.set(false);
         },
-        error: () => this.cargando.set(false)
+        error: (err) => {
+          this.pedidos.set([]);
+          this.pagina.set(null);
+          this.error.set(err.error?.mensaje ?? 'No se pudieron cargar los pedidos.');
+          this.cargando.set(false);
+        }
       });
   }
 
@@ -162,6 +227,7 @@ export class PedidosComponent implements OnInit {
       next: (actualizado) => {
         this.cambiando.set(null);
         this.pedidos.set(this.pedidos().map((p) => (p.id === actualizado.id ? actualizado : p)));
+        this.cargarResumen();
       },
       error: (err) => {
         this.cambiando.set(null);

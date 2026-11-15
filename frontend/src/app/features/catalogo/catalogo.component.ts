@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ProductoService } from '../../core/services/producto.service';
 import { CategoriaService } from '../../core/services/categoria.service';
 import { CarritoService } from '../../core/services/carrito.service';
@@ -50,9 +50,17 @@ import { CategoriaResponse, PageResponse, ProductoResponse } from '../../core/mo
       <section class="grid">
         @for (p of productos(); track p.id) {
           <article class="tarjeta producto">
-            @if (p.imagenUrl) {
-              <img class="producto__img" [src]="p.imagenUrl" [alt]="p.nombre" loading="lazy" />
-            }
+            <a class="producto__media" [routerLink]="['/catalogo', p.id]">
+              <span class="producto__fallback">🛍️</span>
+              @if (p.imagenUrl) {
+                <img class="producto__img" [src]="p.imagenUrl" [alt]="p.nombre" loading="lazy" (error)="ocultarImagen($event)" />
+              }
+              @if (p.stock === 0) {
+                <span class="producto__badge producto__badge--agotado">Agotado</span>
+              } @else if (p.stock <= 5) {
+                <span class="producto__badge producto__badge--pocas">¡Últimas {{ p.stock }}!</span>
+              }
+            </a>
             <div class="producto__nombre">{{ p.nombre }}</div>
             <p class="producto__descripcion">{{ p.descripcion }}</p>
             <div class="producto__categoria">
@@ -92,6 +100,7 @@ export class CatalogoComponent implements OnInit {
   private categoriaService = inject(CategoriaService);
   private carritoService = inject(CarritoService);
   private fb = inject(FormBuilder);
+  private route = inject(ActivatedRoute);
 
   readonly productos: WritableSignal<ProductoResponse[]> = signal([]);
   readonly categorias: WritableSignal<CategoriaResponse[]> = signal([]);
@@ -107,6 +116,10 @@ export class CatalogoComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    const categoriaId = this.route.snapshot.queryParamMap.get('categoriaId');
+    if (categoriaId) {
+      this.form.patchValue({ categoriaId });
+    }
     this.categoriaService.listar().subscribe((cats) => this.categorias.set(cats));
     this.cargar();
   }
@@ -150,5 +163,10 @@ export class CatalogoComponent implements OnInit {
 
   agregar(p: ProductoResponse): void {
     this.carritoService.agregar(p);
+  }
+
+  ocultarImagen(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
   }
 }

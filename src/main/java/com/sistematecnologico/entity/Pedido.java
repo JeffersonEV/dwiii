@@ -33,6 +33,14 @@ public class Pedido {
     @Builder.Default
     private EstadoPedido estado = EstadoPedido.PENDIENTE;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private MetodoPago metodoPago;
+
+    @Column(precision = 12, scale = 2)
+    @Builder.Default
+    private BigDecimal descuento = BigDecimal.ZERO;
+
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal total;
 
@@ -47,6 +55,9 @@ public class Pedido {
         }
         if (estado == null) {
             estado = EstadoPedido.PENDIENTE;
+        }
+        if (descuento == null) {
+            descuento = BigDecimal.ZERO;
         }
         if (total == null) {
             total = BigDecimal.ZERO;

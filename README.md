@@ -132,6 +132,8 @@ Las tablas se crean solas con `ddl-auto=update`. También puedes usar `docs/sql/
 | `DB_PASSWORD` | *(vacío)* |
 | `JWT_SECRET` | clave de desarrollo (¡definir una propia en prod!) |
 | `JWT_EXPIRATION` | `86400000` (24 h) |
+| `SEED_ADMIN_PASSWORD` | `Admin123*` en dev; vacío en prod |
+| `SEED_CLIENTE_PASSWORD` | `Cliente123*` en dev; vacío en prod |
 | `CORS_ORIGINS` | `http://localhost:4200` |
 | `PORT` | `8080` |
 
@@ -164,7 +166,7 @@ frontend/src/app/
 └── environments/    # apiUrl dev/prod (fileReplacements en production)
 ```
 
-## 8. Credenciales demo (creadas automáticamente por `DataInitializer`)
+## 8. Credenciales de prueba (creadas automáticamente por `DataInitializer`)
 
 | Rol | Email | Contraseña |
 |---|---|---|
@@ -172,6 +174,8 @@ frontend/src/app/
 | **CLIENTE** | `cliente@techstore.com` | `Cliente123*` |
 
 > **Importante:** los usuarios del avance anterior tenían contraseñas en **texto plano**. Con la migración a BCrypt **deben recrearse** (o usar el `DataInitializer` / el script SQL). No existe mecanismo automático de migración de hashes desde texto plano.
+>
+> En el perfil `prod` el seed de usuarios queda deshabilitado salvo que definas `SEED_ADMIN_PASSWORD` / `SEED_CLIENTE_PASSWORD`; así no se crean credenciales conocidas en producción.
 
 ## 9. Consultas JPQL y derived queries (repositorios)
 

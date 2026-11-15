@@ -14,22 +14,19 @@ import java.util.List;
 @Repository
 public interface ProductoRepository extends JpaRepository<Producto, Long> {
 
-    // ---------- Derived queries ----------
     boolean existsByCategoriaId(Long categoriaId);
+
+    boolean existsByNombreIgnoreCase(String nombre);
 
     Page<Producto> findByActivoTrue(Pageable pageable);
 
     List<Producto> findByCategoriaIdAndActivoTrue(Long categoriaId);
 
-    // ---------- JPQL ----------
+    List<Producto> findByCategoriaIdAndActivoTrueAndIdNotOrderByIdDesc(Long categoriaId, Long id);
 
-    /**
-     * Busqueda paginada con filtros opcionales de catalogo.
-     * Cualquier parametro null se ignora.
-     */
     @Query("""
             SELECT p FROM Producto p
-            WHERE (:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')))
+            WHERE (:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', CAST(:nombre AS string), '%')))
               AND (:categoriaId IS NULL OR p.categoria.id = :categoriaId)
               AND (:minPrecio IS NULL OR p.precio >= :minPrecio)
               AND (:maxPrecio IS NULL OR p.precio <= :maxPrecio)

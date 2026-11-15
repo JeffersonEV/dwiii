@@ -25,28 +25,66 @@
     }
   }
 
+  &__media {
+    position: relative;
+    display: grid;
+    flex: 0 0 76px;
+    place-items: center;
+    width: 76px;
+    height: 76px;
+    overflow: hidden;
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    background: #fff;
+
+    @media (max-width: 640px) {
+      width: 64px;
+      height: 64px;
+      flex-basis: 64px;
+    }
+  }
+
+  &__fallback {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 1.9rem;
+    opacity: 0.3;
+  }
+
+  &__img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    padding: 6px;
+    object-fit: contain;
+  }
+
   &__info {
     flex: 1;
+    min-width: 160px;
   }
 
   &__nombre {
     font-weight: 700;
     font-size: 1rem;
+    color: var(--primario);
     &:hover {
-      text-decoration: none;
-      color: #1e40af;
+      color: var(--primario-oscuro);
     }
   }
 
   &__precio {
-    color: #2563eb;
-    font-weight: 700;
+    color: var(--texto-suave);
+    font-size: 0.9rem;
     margin-top: 4px;
   }
 
   &__stock {
-    font-size: 0.8rem;
-    color: #64748b;
+    color: var(--texto-suave);
+    font-size: 0.82rem;
   }
 
   &__cantidad {
@@ -85,18 +123,29 @@
       display: flex;
       justify-content: space-between;
       padding: 8px 0;
-      color: #475569;
+      color: var(--texto-suave);
       font-size: 0.95rem;
     }
 
     &-total {
       font-weight: 800;
       font-size: 1.15rem;
-      color: #0f172a;
-      border-top: 1px solid #e2e8f0;
+      color: var(--texto);
+      border-top: 1px solid var(--borde);
       margin-top: 6px;
       margin-bottom: 14px;
       padding-top: 14px;
     }
+  }
+
+  &__pago {
+    margin-top: 6px;
+  }
+
+  &__nota {
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--texto-suave);
+    margin: 4px 0 14px;
   }
 }

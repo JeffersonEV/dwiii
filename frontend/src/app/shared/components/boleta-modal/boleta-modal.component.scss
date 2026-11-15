@@ -1,0 +1,397 @@
+.boleta-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px 20px;
+  overflow-y: auto;
+  background: rgba(4, 10, 24, 0.74);
+  animation: boleta-fundido 0.22s ease-out both;
+}
+
+.boleta-shell {
+  position: relative;
+  width: min(720px, 100%);
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: boleta-subir 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.boleta-cerrar {
+  position: absolute;
+  top: -14px;
+  right: -10px;
+  z-index: 2;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  background: #0f172a;
+  color: #f8fafc;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    background: #1e293b;
+    transform: scale(1.06);
+  }
+}
+
+.boleta {
+  position: relative;
+  overflow: hidden;
+  padding: 36px 36px 28px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: Arial, Helvetica, sans-serif;
+  transform-origin: top center;
+  animation: boleta-desplegar 0.68s cubic-bezier(0.2, 0.85, 0.25, 1.1) both;
+}
+
+.boleta-shell--capturando .boleta {
+  animation: none;
+  transform: none;
+}
+
+.boleta__filo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 7px;
+
+  &--superior {
+    top: 0;
+    background: #2563eb;
+  }
+
+  &--inferior {
+    bottom: 0;
+    background: #7c3aed;
+  }
+}
+
+.boleta__cabecera {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: start;
+}
+
+.boleta__marca {
+  min-width: 0;
+}
+
+.boleta__logo {
+  display: inline-block;
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #0f172a;
+
+  span {
+    color: #2563eb;
+  }
+}
+
+.boleta__tienda-nombre {
+  margin: 4px 0 2px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.boleta__tienda-dato {
+  margin: 1px 0;
+  font-size: 0.76rem;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+.boleta__punto {
+  margin: 0 5px;
+}
+
+.boleta__identidad {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  text-align: right;
+}
+
+.boleta__tipo {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #2563eb;
+}
+
+.boleta__codigo {
+  font-size: 1.08rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  color: #0f172a;
+}
+
+.boleta__estado {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.boleta__linea {
+  height: 1px;
+  margin: 18px 0;
+  background: #e2e8f0;
+}
+
+.boleta__datos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px dashed #cbd5e1;
+}
+
+.boleta__dato {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  span {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #94a3b8;
+  }
+
+  strong {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #1e293b;
+    overflow-wrap: anywhere;
+  }
+}
+
+.boleta__tabla {
+  width: 100%;
+  margin-top: 18px;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+
+  th {
+    padding: 0 6px 8px;
+    border-bottom: 2px solid #0f172a;
+    font-size: 0.67rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: left;
+    color: #475569;
+  }
+
+  td {
+    padding: 10px 6px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #1e293b;
+    vertical-align: top;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+.boleta__col-centro {
+  width: 52px;
+  text-align: center;
+}
+
+.boleta__col-derecha {
+  width: 92px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.boleta__totales {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.boleta__total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  min-width: 260px;
+  padding: 13px 18px;
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  background: #eff6ff;
+
+  span {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #1d4ed8;
+  }
+
+  strong {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #1e3a8a;
+  }
+}
+
+.boleta__pie {
+  margin-top: 26px;
+  text-align: center;
+
+  p {
+    margin: 3px 0;
+    font-size: 0.76rem;
+    color: #64748b;
+  }
+}
+
+.boleta__nota {
+  font-size: 0.68rem !important;
+  color: #94a3b8 !important;
+}
+
+.boleta-acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.boleta-error {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+@keyframes boleta-fundido {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes boleta-subir {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes boleta-desplegar {
+  0% {
+    opacity: 0;
+    transform: perspective(1200px) rotateX(-14deg) translateY(46px) scale(0.95);
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1200px) rotateX(0deg) translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 640px) {
+  .boleta-overlay {
+    padding: 20px 12px;
+  }
+
+  .boleta-cerrar {
+    top: -12px;
+    right: -4px;
+  }
+
+  .boleta {
+    padding: 30px 20px 24px;
+  }
+
+  .boleta__cabecera {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .boleta__identidad {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .boleta__datos {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .boleta__tabla {
+    font-size: 0.76rem;
+
+    th,
+    td {
+      padding-left: 4px;
+      padding-right: 4px;
+    }
+  }
+
+  .boleta__col-centro {
+    width: 40px;
+  }
+
+  .boleta__col-derecha {
+    width: 76px;
+  }
+
+  .boleta__total {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .boleta-acciones {
+    flex-direction: column-reverse;
+
+    .boton {
+      width: 100%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boleta-overlay,
+  .boleta-shell,
+  .boleta {
+    animation: none;
+  }
+}

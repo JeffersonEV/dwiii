@@ -32,6 +32,12 @@ export class ProductoService {
     return this.http.get<ProductoResponse>(`${environment.apiUrl}/productos/${id}`);
   }
 
+  relacionados(id: number, limite = 4): Observable<ProductoResponse[]> {
+    return this.http.get<ProductoResponse[]>(`${environment.apiUrl}/productos/${id}/relacionados`, {
+      params: new HttpParams().set('limite', String(limite))
+    });
+  }
+
   crear(producto: ProductoRequest): Observable<ProductoResponse> {
     return this.http.post<ProductoResponse>(`${environment.apiUrl}/productos`, producto);
   }

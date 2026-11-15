@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
     usuario_id BIGINT        NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
     fecha      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     estado     VARCHAR(20)   NOT NULL CHECK (estado IN ('PENDIENTE', 'PAGADO', 'CANCELADO')),
+    metodo_pago VARCHAR(30)  CHECK (metodo_pago IN ('YAPE', 'PLIN', 'TARJETA', 'TRANSFERENCIA', 'CONTRA_ENTREGA')),
     total      NUMERIC(12,2) NOT NULL DEFAULT 0
 );
 
@@ -63,7 +64,7 @@ CREATE INDEX IF NOT EXISTS idx_pedidos_estado       ON pedidos(estado);
 CREATE INDEX IF NOT EXISTS idx_detalles_producto    ON detalles_pedido(producto_id);
 
 -- ============================================================================
--- DATOS DE EJEMPLO (credentiales demo)
+-- DATOS DE EJEMPLO (credenciales de prueba)
 --   admin  -> admin@techstore.com   / Admin123*
 --   cliente-> cliente@techstore.com / Cliente123*
 -- Hash BCrypt generados con BCryptPasswordEncoder (strength 10), originalmente
@@ -73,7 +74,7 @@ CREATE INDEX IF NOT EXISTS idx_detalles_producto    ON detalles_pedido(producto_
 INSERT INTO usuarios (nombre, apellido, email, password, activo, rol)
 VALUES
 ('Admin', 'TechStore', 'admin@techstore.com', '$2a$10$0X2kZDDb2hBePvljt/AAPeNx0YlTBHj4Z/pbGypC9AWFqG7MJMRku', TRUE, 'ADMIN'),
-('Cliente', 'Demo', 'cliente@techstore.com', '$2a$10$bueXvzmCeK2ZRio514I6m.jo.Va91gnd1ia5MS5VehkaAHn2dWO2G', TRUE, 'CLIENTE');
+('Cliente', 'TechStore', 'cliente@techstore.com', '$2a$10$bueXvzmCeK2ZRio514I6m.jo.Va91gnd1ia5MS5VehkaAHn2dWO2G', TRUE, 'CLIENTE');
 
 INSERT INTO categorias (nombre, descripcion) VALUES
 ('Laptops',      'Computadoras portatiles para trabajo y gaming'),
@@ -83,16 +84,16 @@ INSERT INTO categorias (nombre, descripcion) VALUES
 ('Componentes',  'Tarjetas, memorias y almacenamiento');
 
 INSERT INTO productos (nombre, descripcion, precio, stock, marca, imagen_url, activo, categoria_id) VALUES
-('Laptop Lenovo IdeaPad 3', 'Ryzen 5, 16GB RAM, 512GB SSD', 4599.90, 12, 'Lenovo', 'https://picsum.photos/seed/laptop1/400/300', TRUE, 1),
+('Laptop Lenovo IdeaPad 3i', 'Intel Core i3, 8GB RAM, 512GB SSD', 4599.90, 12, 'Lenovo', '/productos/lenovo-ideapad-3i.webp', TRUE, 1),
 ('MacBook Air M3', 'Apple M3, 8GB RAM, 256GB SSD', 6999.00, 6, 'Apple', 'https://picsum.photos/seed/macbook/400/300', TRUE, 1),
-('Asus TUF Gaming F15', 'Intel i7, RTX 4060, 16GB RAM', 5899.00, 5, 'Asus', 'https://picsum.photos/seed/asus/400/300', TRUE, 1),
+('Asus TUF Gaming F15', 'Intel i7, RTX 4060, 16GB RAM', 5899.00, 5, 'Asus', '/productos/asus-tuf-gaming-f15.webp', TRUE, 1),
 ('Samsung Galaxy S24', '6.2", 256GB, 8GB RAM', 3299.90, 15, 'Samsung', 'https://picsum.photos/seed/s24/400/300', TRUE, 2),
 ('iPhone 15', '6.1", 128GB, A16 Bionic', 4199.00, 10, 'Apple', 'https://picsum.photos/seed/iphone15/400/300', TRUE, 2),
-('Xiaomi Redmi Note 13', '6.67", 256GB, 8GB RAM', 1099.00, 25, 'Xiaomi', 'https://picsum.photos/seed/redmi/400/300', TRUE, 2),
+('Xiaomi Redmi Note 13 Pro', '6.67", 256GB, 8GB RAM, camara 200MP', 1099.00, 25, 'Xiaomi', '/productos/xiaomi-redmi-note-13-pro.webp', TRUE, 2),
 ('Teclado Mecanico Redragon', 'Switch red, retroiluminado RGB', 189.90, 40, 'Redragon', 'https://picsum.photos/seed/teclado/400/300', TRUE, 3),
 ('Mouse Logitech G502', 'Sensor HERO 25K, 11 botones', 249.90, 35, 'Logitech', 'https://picsum.photos/seed/mouse/400/300', TRUE, 3),
-('Monitor LG UltraGear 27"', '27" QHD 165Hz IPS', 1399.00, 8, 'LG', 'https://picsum.photos/seed/monitor/400/300', TRUE, 3),
-('Audifonos Sony WH-1000XM5', 'Cancelacion de ruido, 30h bateria', 1599.00, 14, 'Sony', 'https://picsum.photos/seed/sony/400/300', TRUE, 4),
-('Parlante JBL Flip 6', 'Bluetooth, resistente al agua', 459.00, 20, 'JBL', 'https://picsum.photos/seed/jbl/400/300', TRUE, 4),
+('Monitor LG UltraGear 27"', '27" IPS 4K UHD 240Hz / FHD 480Hz', 2595.00, 8, 'LG', '/productos/monitor-lg-ultragear-27.webp', TRUE, 3),
+('Audifonos Sony WH-1000XM5', 'Cancelacion de ruido, 30h bateria', 1599.00, 14, 'Sony', '/productos/sony-wh1000xm5.webp', TRUE, 4),
+('Parlante JBL Flip 6', 'Bluetooth, resistente al agua, 12h bateria', 349.00, 20, 'JBL', '/productos/jbl-flip-6.webp', TRUE, 4),
 ('SSD NVMe Kingston 1TB', 'PCIe Gen4, 7000MB/s', 389.90, 30, 'Kingston', 'https://picsum.photos/seed/ssd/400/300', TRUE, 5),
-('Memoria RAM Corsair 16GB', 'DDR5 5200MHz', 329.00, 4, 'Corsair', 'https://picsum.photos/seed/ram/400/300', TRUE, 5);
+('Memoria RAM Corsair 32GB (2x16GB) DDR5', 'Kit 2x16GB DDR5 5200MHz RGB blanco', 396.00, 3, 'Corsair', '/productos/ram-corsair-32gb.webp', TRUE, 5);

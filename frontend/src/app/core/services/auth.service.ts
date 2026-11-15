@@ -18,7 +18,7 @@ export class AuthService {
   ) {}
 
   get token(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+    return this.user()?.token ?? null;
   }
 
   get tokenValido(): boolean {

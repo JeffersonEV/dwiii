@@ -39,9 +39,6 @@ import { AuthService } from '../../../core/services/auth.service';
         <p class="auth__enlace">
           ¿No tienes cuenta? <a routerLink="/registro">Regístrate aquí</a>
         </p>
-        <p class="auth__demo">
-          Demo: <code>admin@techstore.com / Admin123*</code> · <code>cliente@techstore.com / Cliente123*</code>
-        </p>
       </form>
     </div>
   `,

@@ -58,7 +58,6 @@ public class UsuarioService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
     }
 
-    /** Registro publico: siempre rol CLIENTE. */
     @Transactional
     public UsuarioResponse registrarCliente(RegistroRequest request) {
         if (usuarioRepository.existsByEmail(request.email())) {
@@ -71,11 +70,23 @@ public class UsuarioService {
                 .password(passwordEncoder.encode(request.password()))
                 .rol(Rol.CLIENTE)
                 .activo(true)
+                .promocionDisponible(true)
                 .build();
         return toResponse(usuarioRepository.save(usuario));
     }
 
-    /** Alta realizada por un ADMIN (puede asignar cualquier rol). */
+    @Transactional
+    public void marcarPromocionUsada(Usuario usuario) {
+        usuario.setPromocionDisponible(false);
+        usuarioRepository.save(usuario);
+    }
+
+    @Transactional
+    public void restaurarPromocion(Usuario usuario) {
+        usuario.setPromocionDisponible(true);
+        usuarioRepository.save(usuario);
+    }
+
     @Transactional
     public UsuarioResponse crear(UsuarioRequest request) {
         if (usuarioRepository.existsByEmail(request.email())) {
@@ -127,6 +138,7 @@ public class UsuarioService {
     public UsuarioResponse toResponse(Usuario u) {
         return new UsuarioResponse(
                 u.getId(), u.getNombre(), u.getApellido(), u.getEmail(),
-                u.getActivo(), u.getRol(), u.getFechaRegistro());
+                u.getActivo(), u.getRol(), u.getFechaRegistro(),
+                Boolean.TRUE.equals(u.getPromocionDisponible()));
     }
 }

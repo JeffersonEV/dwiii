@@ -29,9 +29,12 @@ public class Usuario {
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
-    /** Siempre almacenada con BCrypt. */
     @Column(nullable = false, length = 100)
     private String password;
+
+    @Column(name = "promocion_disponible")
+    @Builder.Default
+    private Boolean promocionDisponible = false;
 
     @Column(nullable = false)
     @Builder.Default
@@ -56,6 +59,9 @@ public class Usuario {
         }
         if (activo == null) {
             activo = true;
+        }
+        if (promocionDisponible == null) {
+            promocionDisponible = false;
         }
         if (rol == null) {
             rol = Rol.CLIENTE;

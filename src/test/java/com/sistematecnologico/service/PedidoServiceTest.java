@@ -32,6 +32,8 @@ class PedidoServiceTest {
     private ProductoRepository productoRepository;
     @Mock
     private UsuarioService usuarioService;
+    @Mock
+    private InventarioService inventarioService;
 
     @InjectMocks
     private PedidoService pedidoService;
@@ -68,6 +70,7 @@ class PedidoServiceTest {
         assertNotNull(captor.getValue().getUsuario());
         assertEquals(1, captor.getValue().getDetalles().size());
         assertEquals(EstadoPedido.PENDIENTE, response.estado());
+        assertEquals(MetodoPago.CONTRA_ENTREGA, response.metodoPago());
         assertEquals(1, response.detalles().size());
     }
 
@@ -148,6 +151,45 @@ class PedidoServiceTest {
 
         assertThrows(org.springframework.security.access.AccessDeniedException.class,
                 () -> pedidoService.cancelar(200L, "cliente@test.com", false));
+    }
+
+    @Test
+    @DisplayName("adminCambiarEstado(): un pedido cancelado no puede reabrirse")
+    void adminCambiarEstadoCanceladoEsTerminal() {
+        Pedido pedido = pedidoNuevo();
+        pedido.setEstado(EstadoPedido.CANCELADO);
+        when(pedidoRepository.findById(200L)).thenReturn(Optional.of(pedido));
+
+        assertThrows(ReglaNegocioException.class,
+                () -> pedidoService.adminCambiarEstado(200L, EstadoPedido.PENDIENTE));
+        assertEquals(10, producto.getStock());
+        verify(pedidoRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("adminCambiarEstado(): cancelar restaura el stock una sola vez")
+    void adminCambiarEstadoACanceladoRestauraStock() {
+        Pedido pedido = pedidoNuevo();
+        when(pedidoRepository.findById(200L)).thenReturn(Optional.of(pedido));
+        when(pedidoRepository.save(any(Pedido.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        PedidoResponse response = pedidoService.adminCambiarEstado(200L, EstadoPedido.CANCELADO);
+
+        assertEquals(EstadoPedido.CANCELADO, response.estado());
+        assertEquals(13, producto.getStock());
+    }
+
+    @Test
+    @DisplayName("adminCambiarEstado(): PENDIENTE a PAGADO no modifica el stock")
+    void adminCambiarEstadoPendienteAPagadoNoTocaStock() {
+        Pedido pedido = pedidoNuevo();
+        when(pedidoRepository.findById(200L)).thenReturn(Optional.of(pedido));
+        when(pedidoRepository.save(any(Pedido.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        PedidoResponse response = pedidoService.adminCambiarEstado(200L, EstadoPedido.PAGADO);
+
+        assertEquals(EstadoPedido.PAGADO, response.estado());
+        assertEquals(10, producto.getStock());
     }
 
     private Pedido pedidoNuevo() {

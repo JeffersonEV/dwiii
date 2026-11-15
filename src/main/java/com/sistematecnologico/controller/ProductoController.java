@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/productos")
@@ -43,6 +44,14 @@ public class ProductoController {
     @Operation(summary = "Obtiene un producto por id (publico)")
     public ResponseEntity<ProductoResponse> obtener(@PathVariable Long id) {
         return ResponseEntity.ok(productoService.obtener(id));
+    }
+
+    @GetMapping("/{id}/relacionados")
+    @Operation(summary = "Lista productos sugeridos de la misma categoria (publico)")
+    public ResponseEntity<List<ProductoResponse>> relacionados(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "4") int limite) {
+        return ResponseEntity.ok(productoService.relacionados(id, limite));
     }
 
     @PostMapping

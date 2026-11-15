@@ -3,6 +3,7 @@ package com.sistematecnologico.service;
 import com.sistematecnologico.dto.auth.AuthResponse;
 import com.sistematecnologico.dto.auth.LoginRequest;
 import com.sistematecnologico.dto.auth.RegistroRequest;
+import com.sistematecnologico.dto.usuario.UsuarioResponse;
 import com.sistematecnologico.entity.Usuario;
 import com.sistematecnologico.exception.AutenticacionException;
 import com.sistematecnologico.repository.UsuarioRepository;
@@ -36,7 +37,8 @@ public class AuthService {
         var usuarioResponse = usuarioService.registrarCliente(request);
         Usuario usuario = usuarioService.porEmail(usuarioResponse.email());
         String token = jwtService.generarToken(usuario);
-        return new AuthResponse(token, usuario.getId(), usuario.getNombre(), usuario.getEmail(), usuario.getRol());
+        return new AuthResponse(token, usuario.getId(), usuario.getNombre(), usuario.getEmail(), usuario.getRol(),
+                Boolean.TRUE.equals(usuario.getPromocionDisponible()));
     }
 
     @Transactional(readOnly = true)
@@ -53,6 +55,12 @@ public class AuthService {
             throw new AutenticacionException("El usuario esta inactivo. Contacte al administrador.");
         }
         String token = jwtService.generarToken(usuario);
-        return new AuthResponse(token, usuario.getId(), usuario.getNombre(), usuario.getEmail(), usuario.getRol());
+        return new AuthResponse(token, usuario.getId(), usuario.getNombre(), usuario.getEmail(), usuario.getRol(),
+                Boolean.TRUE.equals(usuario.getPromocionDisponible()));
+    }
+
+    @Transactional(readOnly = true)
+    public UsuarioResponse perfil(String email) {
+        return usuarioService.toResponse(usuarioService.porEmail(email));
     }
 }

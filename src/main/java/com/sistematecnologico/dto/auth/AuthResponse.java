@@ -8,9 +8,10 @@ public record AuthResponse(
         Long id,
         String nombre,
         String email,
-        Rol rol
+        Rol rol,
+        Boolean promocionDisponible
 ) {
-    public AuthResponse(String token, Long id, String nombre, String email, Rol rol) {
-        this(token, "Bearer", id, nombre, email, rol);
+    public AuthResponse(String token, Long id, String nombre, String email, Rol rol, Boolean promocionDisponible) {
+        this(token, "Bearer", id, nombre, email, rol, promocionDisponible);
     }
 }

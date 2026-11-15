@@ -1,6 +1,7 @@
 package com.sistematecnologico.dto.pedido;
 
 import com.sistematecnologico.entity.EstadoPedido;
+import com.sistematecnologico.entity.MetodoPago;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,6 +13,9 @@ public record PedidoResponse(
         String cliente,
         LocalDateTime fecha,
         EstadoPedido estado,
+        MetodoPago metodoPago,
+        BigDecimal subtotal,
+        BigDecimal descuento,
         BigDecimal total,
         List<DetallePedidoResponse> detalles
 ) {

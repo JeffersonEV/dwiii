@@ -33,9 +33,9 @@ Proyecto full stack: **backend Spring Boot 4 (API REST + JWT)** y **frontend Ang
    - Neon: `jdbc:postgresql://ep-xxx.us-east-2.aws.neon.tech/techstore?sslmode=require`
    - Railway: `jdbc:postgresql://containers-us-west-1.railway.app:5432/railway`
 3. Anota `usuario` y `password`.
-4. (Opcional) Ejecuta el script `docs/sql/techstore_schema.sql` en esa base para precargar el esquema y los datos demo. Si no, Hibernate creará el esquema automáticamente (`DDL_AUTO=update`).
+4. (Opcional) Ejecuta el script `docs/sql/techstore_schema.sql` en esa base para precargar el esquema y los datos iniciales. Si no, Hibernate creará el esquema automáticamente (`DDL_AUTO=update`).
 
-> Credenciales demo que crea `DataInitializer` al primer arranque:
+> Credenciales de prueba que crea `DataInitializer` al primer arranque:
 > `admin@techstore.com / Admin123*` y `cliente@techstore.com / Cliente123*`.
 
 ---
@@ -131,6 +131,8 @@ Incluye `frontend/vercel.json` con el *rewrite* de SPA.
 | `DB_USER` / `DB_PASSWORD` | Sí | Credenciales de la base |
 | `JWT_SECRET` | Sí | Clave HS256 (32+ caracteres) |
 | `JWT_EXPIRATION` | No | ms de validez del token (def. 86400000) |
+| `SEED_ADMIN_PASSWORD` | No | Solo si quieres que se cree el admin inicial; sin ella no se siembran usuarios en `prod` |
+| `SEED_CLIENTE_PASSWORD` | No | Igual que la anterior para el cliente de prueba |
 | `DDL_AUTO` | No | `update` (def.) |
 | `CORS_ORIGINS` | Sí | Dominio(s) del frontend, separados por coma |
 | `PORT` | No | Puerto (lo inyecta el host) |
@@ -145,7 +147,7 @@ Incluye `frontend/vercel.json` con el *rewrite* de SPA.
 ## 6. Prueba post-despliegue (checklist)
 
 - [ ] `GET /actuator/health` → `UP`.
-- [ ] `POST /api/auth/login` con `admin@techstore.com / Admin123*` → devuelve `token`.
+- [ ] `POST /api/auth/login` con `admin@techstore.com` y la contraseña definida en `SEED_ADMIN_PASSWORD` → devuelve `token`.
 - [ ] Swagger UI abre y el botón **Authorize** acepta el token.
 - [ ] El frontend carga el catálogo (sin errores de CORS en la consola).
 - [ ] Login desde el frontend redirige al panel acorde al rol.

@@ -10,11 +10,14 @@ import com.sistematecnologico.exception.ReglaNegocioException;
 import com.sistematecnologico.repository.DetallePedidoRepository;
 import com.sistematecnologico.repository.ProductoRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -51,6 +54,38 @@ public class ProductoService {
     @Transactional(readOnly = true)
     public ProductoResponse obtener(Long id) {
         return toResponse(entidad(id));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductoResponse> relacionados(Long id, int limite) {
+        int maximo = Math.max(1, Math.min(limite, 12));
+        Producto actual = entidad(id);
+        List<Producto> relacionados = new ArrayList<>();
+
+        if (actual.getCategoria() != null) {
+            relacionados.addAll(productoRepository
+                    .findByCategoriaIdAndActivoTrueAndIdNotOrderByIdDesc(actual.getCategoria().getId(), id));
+        }
+
+        if (relacionados.size() < maximo) {
+            Page<Producto> recientes = productoRepository.findByActivoTrue(
+                    PageRequest.of(0, Math.max(maximo * 3, 12), Sort.by(Sort.Direction.DESC, "id")));
+            for (Producto candidato : recientes.getContent()) {
+                boolean repetido = candidato.getId().equals(id)
+                        || relacionados.stream().anyMatch(p -> p.getId().equals(candidato.getId()));
+                if (!repetido) {
+                    relacionados.add(candidato);
+                }
+                if (relacionados.size() >= maximo) {
+                    break;
+                }
+            }
+        }
+
+        return relacionados.stream()
+                .limit(maximo)
+                .map(this::toResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -92,10 +127,6 @@ public class ProductoService {
         return toResponse(productoRepository.save(producto));
     }
 
-    /**
-     * Si el producto tiene pedidos asociados se aplica borrado logico (activo=false);
-     * en caso contrario se elimina fisicamente.
-     */
     @Transactional
     public void eliminar(Long id) {
         Producto producto = entidad(id);
